@@ -1,27 +1,19 @@
-use std::sync::Arc;
+use once_cell::sync::Lazy;
+use sqlx::{Pool, Sqlite};
 
 use crate::tools::DB_PATH;
-use crate::utils::DatabaseUtils;
-use once_cell::sync::Lazy;
 
 // DAO 结构体，用于操作数据库。
-pub struct WakaTimeDao {
-}
+pub struct WakaTimeDao {}
 
-// static DB_UTILS: Lazy<DatabaseUtils> = Lazy::new(|| {
-//     let pool = tokio::runtime::Builder::new_current_thread()
-//         .enable_all()
-//         .build()
-//         .unwrap()
-//         .block_on(DatabaseUtils::new(DB_PATH))
-//         .unwrap();
-    //    DatabaseUtils { pool: Arc::new(pool) }
-// });
+static DB_POOL: Lazy<Pool<Sqlite>> = Lazy::new(|| {
+    let pool = Pool::connect_lazy(DB_PATH).unwrap();
+
+    pool
+});
 
 impl WakaTimeDao {
-
     pub async fn insert_grand_total(
-        &self,
         id: i32,
         range_id: i32,
         decimal: f64,
@@ -31,8 +23,7 @@ impl WakaTimeDao {
         text: &str,
         total_seconds: f64,
     ) -> anyhow::Result<()> {
-
-        let mut tx = DB_UTILS.begin().await?;
+        let mut tx = DB_POOL.begin().await?;
 
         sqlx::query("INSERT INTO grand_total (id, date, timezone, total) VALUES (?, ?, ?, ?)")
             .bind(id)
@@ -51,7 +42,6 @@ impl WakaTimeDao {
 
     // 向 time 表中插入数据。
     pub async fn insert_range(
-        &self,
         id: &i32,
         date: &str,
         start_date: &str,
@@ -59,7 +49,7 @@ impl WakaTimeDao {
         text: &str,
         timezone: &str,
     ) -> anyhow::Result<u64> {
-        let mut tx = self.pool.begin().await?;
+        let mut tx = DB_POOL.begin().await?;
 
         let result = sqlx::query(
             "INSERT INTO range (id, date, start, end, text, timezone) VALUES (?, ?, ?, ?, ?, ?)",
@@ -80,7 +70,6 @@ impl WakaTimeDao {
 
     // 向 category 表中插入数据。
     pub async fn insert_category(
-        &self,
         id: i32,
         range_id: i32,
         name: &str,
@@ -93,7 +82,7 @@ impl WakaTimeDao {
         text: &str,
         total_seconds: f64,
     ) -> anyhow::Result<()> {
-        let mut tx = self.pool.begin().await?;
+        let mut tx = DB_POOL.begin().await?;
         sqlx
         ::query(
             "INSERT INTO category (id, range_id, name, decimal, digital, hours, minutes, seconds, percent, text, total_seconds) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
@@ -116,7 +105,6 @@ impl WakaTimeDao {
 
     // 向 dependency 表中插入数据。
     pub async fn insert_dependency(
-        &self,
         id: i32,
         range_id: i32,
         name: &str,
@@ -129,7 +117,7 @@ impl WakaTimeDao {
         text: &str,
         total_seconds: f64,
     ) -> anyhow::Result<()> {
-        let mut tx = self.pool.begin().await?;
+        let mut tx = DB_POOL.begin().await?;
         sqlx
         ::query(
             "INSERT INTO dependency (id, range_id, name, decimal, digital, hours, minutes, seconds, percent, text, total_seconds) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
@@ -152,7 +140,6 @@ impl WakaTimeDao {
 
     // 向 editor 表中插入数据。
     pub async fn insert_editor(
-        &self,
         id: i32,
         range_id: i32,
         name: &str,
@@ -165,7 +152,7 @@ impl WakaTimeDao {
         text: &str,
         total_seconds: f64,
     ) -> anyhow::Result<()> {
-        let mut tx = self.pool.begin().await?;
+        let mut tx = DB_POOL.begin().await?;
         sqlx
         ::query(
             "INSERT INTO editor (id, range_id, name, decimal, digital, hours, minutes, seconds, percent, text, total_seconds) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
@@ -188,7 +175,6 @@ impl WakaTimeDao {
 
     // 向 language 表中插入数据。
     pub async fn insert_language(
-        &self,
         id: i32,
         range_id: i32,
         name: &str,
@@ -201,7 +187,7 @@ impl WakaTimeDao {
         text: &str,
         total_seconds: f64,
     ) -> anyhow::Result<()> {
-        let mut tx = self.pool.begin().await?;
+        let mut tx = DB_POOL.begin().await?;
         sqlx
         ::query(
             "INSERT INTO language (id, range_id, name, decimal, digital, hours, minutes, seconds, percent, text, total_seconds) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
@@ -224,7 +210,6 @@ impl WakaTimeDao {
 
     // 向 machine 表中插入数据。
     pub async fn insert_machine(
-        &self,
         id: i32,
         range_id: i32,
         name: &str,
@@ -238,7 +223,7 @@ impl WakaTimeDao {
         total_seconds: f64,
         machine_name_id: &str,
     ) -> anyhow::Result<()> {
-        let mut tx = self.pool.begin().await?;
+        let mut tx = DB_POOL.begin().await?;
         sqlx
         ::query(
             "INSERT INTO machine (id, range_id, name, decimal, digital, hours, minutes, seconds, percent, text, total_seconds, machine_name_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
@@ -262,7 +247,6 @@ impl WakaTimeDao {
 
     // 向 operating_system 表中插入数据。
     pub async fn insert_operating_system(
-        &self,
         id: i32,
         range_id: i32,
         name: &str,
@@ -275,7 +259,7 @@ impl WakaTimeDao {
         text: &str,
         total_seconds: f64,
     ) -> anyhow::Result<()> {
-        let mut tx = self.pool.begin().await?;
+        let mut tx = DB_POOL.begin().await?;
         sqlx
         ::query(
             "INSERT INTO operating_system (id, range_id, name, decimal, digital, hours, minutes, seconds, percent, text, total_seconds) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
@@ -298,7 +282,6 @@ impl WakaTimeDao {
 
     // 向 project 表中插入数据。
     pub async fn insert_project(
-        &self,
         id: i32,
         range_id: i32,
         name: &str,
@@ -311,7 +294,7 @@ impl WakaTimeDao {
         text: &str,
         total_seconds: f64,
     ) -> anyhow::Result<()> {
-        let mut tx = self.pool.begin().await?;
+        let mut tx = DB_POOL.begin().await?;
         sqlx
         ::query(
             "INSERT INTO project (id, range_id, name, decimal, digital, hours, minutes, seconds, percent, text, total_seconds) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"

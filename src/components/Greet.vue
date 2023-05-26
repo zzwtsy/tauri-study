@@ -3,11 +3,12 @@ import { ref } from "vue";
 import { invoke } from "@tauri-apps/api/tauri";
 
 const greetMsg = ref("");
-const gistId = ref(0);
+const gistId = ref();
 
 async function greet() {
+  console.log(typeof (gistId.value as number));
   // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
-  greetMsg.value = await invoke("gist_id", { id: gistId.value });
+  greetMsg.value = await invoke("gist_id", { id: gistId.value as number });
 }
 </script>
 

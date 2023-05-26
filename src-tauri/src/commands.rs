@@ -1,3 +1,5 @@
+use std::path::Path;
+
 use crate::dao::wakatime_dao::WakaTimeDao;
 use crate::entity::Range;
 
@@ -10,6 +12,9 @@ pub fn greet(name: &str) -> String {
 pub async fn gist_id(id: i32) -> String {
     println!("id = {}", id);
 
+    let path = Path::new(".");
+    println!("path = {}", path.display());
+
     let range = Range {
         id,
         date: "2023-04-04".to_string(),
@@ -19,17 +24,15 @@ pub async fn gist_id(id: i32) -> String {
         timezone: "Asia/Shanghai".to_string(),
     };
 
-    let waka_time_dao = WakaTimeDao::new().await;
-    let result = waka_time_dao
-        .insert_range(
-            &range.id,
-            &range.date,
-            &range.start,
-            &range.end,
-            &range.text,
-            &range.timezone,
-        )
-        .await;
+    let result = WakaTimeDao::insert_range(
+        &range.id,
+        &range.date,
+        &range.start,
+        &range.end,
+        &range.text,
+        &range.timezone,
+    )
+    .await;
 
     let res = match result {
         Ok(r) => r.to_string(),
