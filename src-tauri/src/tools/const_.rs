@@ -1,0 +1,1 @@
+pub const DB_PATH: &str = "sqlite:D:\\Study\\tauri\\demo1\\data\\database\\wakatime.db";
