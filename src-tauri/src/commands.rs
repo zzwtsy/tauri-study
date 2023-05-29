@@ -1,7 +1,7 @@
-use std::path::Path;
+use std::collections::HashMap;
 
-use crate::dao::wakatime_dao::WakaTimeDao;
-use crate::entity::Range;
+use crate::{service::WakaTimeService, utils::HttpUtils};
+use entity::wakatime::*;
 
 #[tauri::command]
 pub fn greet(name: &str) -> String {
@@ -10,36 +10,21 @@ pub fn greet(name: &str) -> String {
 
 #[tauri::command]
 pub async fn gist_id(id: i32) -> String {
-    println!("id = {}", id);
+    println!("{}", id);
 
-    let path = Path::new(".");
-    println!("path = {}", path.display());
+    let url = "https://gist.githubusercontent.com/zzwtsy/070bce177f3e0bc2b012be8ecfa166e4/raw/8168f5580c76be3e15b303fcedac78683dc1c3b0/summaries_2023-01-01.json";
 
-    let range = Range {
-        id,
-        date: "2023-04-04".to_string(),
-        end: "2023-04-04T15:59:59Z".to_string(),
-        start: "2023-04-03T16:00:00Z".to_string(),
-        text: "Tue Apr 4th 2023".to_string(),
-        timezone: "Asia/Shanghai".to_string(),
-    };
+    let header = HashMap::new();
 
-    let result = WakaTimeDao::insert_range(
-        &range.id,
-        &range.date,
-        &range.start,
-        &range.end,
-        &range.text,
-        &range.timezone,
-    )
-    .await;
+    let res = HttpUtils::get_json::<WakaTimeJsonVec>(url, header).await;
 
-    let res = match result {
-        Ok(r) => r.to_string(),
-        Err(err) => {
-            format!("{}", err);
-            err.to_string()
-        }
-    };
-    res
+    let json = res.unwrap();
+
+    let res = WakaTimeService::add_wakatime_data(json).await;
+
+    if res.is_err() {
+        return res.err().unwrap().to_string();
+    } else {
+        return "success".to_string();
+    }
 }

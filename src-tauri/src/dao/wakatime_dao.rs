@@ -1,317 +1,173 @@
-use once_cell::sync::Lazy;
-use sqlx::{Pool, Sqlite};
+use sea_orm::{ActiveModelTrait, DbErr, EntityTrait, TransactionTrait};
 
-use crate::tools::DB_PATH;
+use crate::{db::db_conn, tools::DB};
+use entity::*;
 
-// DAO 结构体，用于操作数据库。
+/// DAO 结构体，用于操作数据库。
 pub struct WakaTimeDao {}
 
-static DB_POOL: Lazy<Pool<Sqlite>> = Lazy::new(|| {
-    let pool = Pool::connect_lazy(DB_PATH).unwrap();
-
-    pool
-});
-
+#[warn(dead_code)]
 impl WakaTimeDao {
-    pub async fn insert_grand_total(
-        id: i32,
-        range_id: i32,
-        decimal: f64,
-        digital: &str,
-        hours: i32,
-        minutes: i32,
-        text: &str,
-        total_seconds: f64,
+    pub async fn insert_categories(
+        categories_models: Vec<categories::ActiveModel>,
     ) -> anyhow::Result<()> {
-        let mut tx = DB_POOL.begin().await?;
+        let db = DB.get_or_init(|| db_conn()).await;
 
-        sqlx::query("INSERT INTO grand_total (id, date, timezone, total) VALUES (?, ?, ?, ?)")
-            .bind(id)
-            .bind(range_id)
-            .bind(decimal)
-            .bind(digital)
-            .bind(hours)
-            .bind(minutes)
-            .bind(text)
-            .bind(total_seconds)
-            .execute(&mut tx)
-            .await?;
-        tx.commit().await?;
-        Ok(())
-    }
+        db.transaction::<_, (), DbErr>(|txn| {
+            Box::pin(async move {
+                categories::Entity::insert_many(categories_models)
+                    .exec(txn)
+                    .await?;
 
-    // 向 time 表中插入数据。
-    pub async fn insert_range(
-        id: &i32,
-        date: &str,
-        start_date: &str,
-        end_date: &str,
-        text: &str,
-        timezone: &str,
-    ) -> anyhow::Result<u64> {
-        let mut tx = DB_POOL.begin().await?;
-
-        let result = sqlx::query(
-            "INSERT INTO range (id, date, start, end, text, timezone) VALUES (?, ?, ?, ?, ?, ?)",
-        )
-        .bind(id)
-        .bind(date)
-        .bind(start_date)
-        .bind(end_date)
-        .bind(text)
-        .bind(timezone)
-        .execute(&mut tx)
+                Ok(())
+            })
+        })
         .await?;
 
-        tx.commit().await?;
-
-        Ok(result.rows_affected())
-    }
-
-    // 向 category 表中插入数据。
-    pub async fn insert_category(
-        id: i32,
-        range_id: i32,
-        name: &str,
-        decimal: f64,
-        digital: &str,
-        hours: i32,
-        minutes: i32,
-        seconds: i32,
-        percent: f64,
-        text: &str,
-        total_seconds: f64,
-    ) -> anyhow::Result<()> {
-        let mut tx = DB_POOL.begin().await?;
-        sqlx
-        ::query(
-            "INSERT INTO category (id, range_id, name, decimal, digital, hours, minutes, seconds, percent, text, total_seconds) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
-        )
-            .bind(id)
-            .bind(range_id)
-            .bind(name)
-            .bind(decimal)
-            .bind(digital)
-            .bind(hours)
-            .bind(minutes)
-            .bind(seconds)
-            .bind(percent)
-            .bind(text)
-            .bind(total_seconds)
-            .execute(&mut tx).await?;
-        tx.commit().await?;
         Ok(())
     }
 
-    // 向 dependency 表中插入数据。
-    pub async fn insert_dependency(
-        id: i32,
-        range_id: i32,
-        name: &str,
-        decimal: f64,
-        digital: &str,
-        hours: i32,
-        minutes: i32,
-        seconds: i32,
-        percent: f64,
-        text: &str,
-        total_seconds: f64,
+    pub async fn insert_dependencies(
+        dependencies_models: Vec<dependencies::ActiveModel>,
     ) -> anyhow::Result<()> {
-        let mut tx = DB_POOL.begin().await?;
-        sqlx
-        ::query(
-            "INSERT INTO dependency (id, range_id, name, decimal, digital, hours, minutes, seconds, percent, text, total_seconds) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
-        )
-            .bind(id)
-            .bind(range_id)
-            .bind(name)
-            .bind(decimal)
-            .bind(digital)
-            .bind(hours)
-            .bind(minutes)
-            .bind(seconds)
-            .bind(percent)
-            .bind(text)
-            .bind(total_seconds)
-            .execute(&mut tx).await?;
-        tx.commit().await?;
+        let db = DB.get_or_init(|| db_conn()).await;
+
+        db.transaction::<_, (), DbErr>(|txn| {
+            Box::pin(async move {
+                dependencies::Entity::insert_many(dependencies_models)
+                    .exec(txn)
+                    .await?;
+
+                Ok(())
+            })
+        })
+        .await?;
+
         Ok(())
     }
 
-    // 向 editor 表中插入数据。
-    pub async fn insert_editor(
-        id: i32,
-        range_id: i32,
-        name: &str,
-        decimal: f64,
-        digital: &str,
-        hours: i32,
-        minutes: i32,
-        seconds: i32,
-        percent: f64,
-        text: &str,
-        total_seconds: f64,
-    ) -> anyhow::Result<()> {
-        let mut tx = DB_POOL.begin().await?;
-        sqlx
-        ::query(
-            "INSERT INTO editor (id, range_id, name, decimal, digital, hours, minutes, seconds, percent, text, total_seconds) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
-        )
-            .bind(id)
-            .bind(range_id)
-            .bind(name)
-            .bind(decimal)
-            .bind(digital)
-            .bind(hours)
-            .bind(minutes)
-            .bind(seconds)
-            .bind(percent)
-            .bind(text)
-            .bind(total_seconds)
-            .execute(&mut tx).await?;
-        tx.commit().await?;
+    pub async fn insert_editors(editors_models: Vec<editors::ActiveModel>) -> anyhow::Result<()> {
+        let db = DB.get_or_init(|| db_conn()).await;
+
+        db.transaction::<_, (), DbErr>(|txn| {
+            Box::pin(async move {
+                editors::Entity::insert_many(editors_models)
+                    .exec(txn)
+                    .await?;
+
+                Ok(())
+            })
+        })
+        .await?;
+
         Ok(())
     }
 
-    // 向 language 表中插入数据。
-    pub async fn insert_language(
-        id: i32,
-        range_id: i32,
-        name: &str,
-        decimal: f64,
-        digital: &str,
-        hours: i32,
-        minutes: i32,
-        seconds: i32,
-        percent: f64,
-        text: &str,
-        total_seconds: f64,
+    pub async fn insert_grand_total(
+        grand_total_model: grand_total::ActiveModel,
     ) -> anyhow::Result<()> {
-        let mut tx = DB_POOL.begin().await?;
-        sqlx
-        ::query(
-            "INSERT INTO language (id, range_id, name, decimal, digital, hours, minutes, seconds, percent, text, total_seconds) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
-        )
-            .bind(id)
-            .bind(range_id)
-            .bind(name)
-            .bind(decimal)
-            .bind(digital)
-            .bind(hours)
-            .bind(minutes)
-            .bind(seconds)
-            .bind(percent)
-            .bind(text)
-            .bind(total_seconds)
-            .execute(&mut tx).await?;
-        tx.commit().await?;
+        let db = DB.get_or_init(|| db_conn()).await;
+
+        db.transaction::<_, (), DbErr>(|txn| {
+            Box::pin(async move {
+                grand_total_model.insert(txn).await?;
+
+                Ok(())
+            })
+        })
+        .await?;
+
         Ok(())
     }
 
-    // 向 machine 表中插入数据。
-    pub async fn insert_machine(
-        id: i32,
-        range_id: i32,
-        name: &str,
-        decimal: f64,
-        digital: &str,
-        hours: i32,
-        minutes: i32,
-        seconds: i32,
-        percent: f64,
-        text: &str,
-        total_seconds: f64,
-        machine_name_id: &str,
+    pub async fn insert_languages(
+        languages_models: Vec<languages::ActiveModel>,
     ) -> anyhow::Result<()> {
-        let mut tx = DB_POOL.begin().await?;
-        sqlx
-        ::query(
-            "INSERT INTO machine (id, range_id, name, decimal, digital, hours, minutes, seconds, percent, text, total_seconds, machine_name_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
-        )
-            .bind(id)
-            .bind(range_id)
-            .bind(name)
-            .bind(decimal)
-            .bind(digital)
-            .bind(hours)
-            .bind(minutes)
-            .bind(seconds)
-            .bind(percent)
-            .bind(text)
-            .bind(total_seconds)
-            .bind(machine_name_id)
-            .execute(&mut tx).await?;
-        tx.commit().await?;
+        let db = DB.get_or_init(|| db_conn()).await;
+
+        db.transaction::<_, (), DbErr>(|txn| {
+            Box::pin(async move {
+                languages::Entity::insert_many(languages_models)
+                    .exec(txn)
+                    .await?;
+
+                Ok(())
+            })
+        })
+        .await?;
+
         Ok(())
     }
 
-    // 向 operating_system 表中插入数据。
-    pub async fn insert_operating_system(
-        id: i32,
-        range_id: i32,
-        name: &str,
-        decimal: f64,
-        digital: &str,
-        hours: i32,
-        minutes: i32,
-        seconds: i32,
-        percent: f64,
-        text: &str,
-        total_seconds: f64,
+    pub async fn insert_machines(
+        machines_models: Vec<machines::ActiveModel>,
     ) -> anyhow::Result<()> {
-        let mut tx = DB_POOL.begin().await?;
-        sqlx
-        ::query(
-            "INSERT INTO operating_system (id, range_id, name, decimal, digital, hours, minutes, seconds, percent, text, total_seconds) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
-        )
-            .bind(id)
-            .bind(range_id)
-            .bind(name)
-            .bind(decimal)
-            .bind(digital)
-            .bind(hours)
-            .bind(minutes)
-            .bind(seconds)
-            .bind(percent)
-            .bind(text)
-            .bind(total_seconds)
-            .execute(&mut tx).await?;
-        tx.commit().await?;
+        let db = DB.get_or_init(|| db_conn()).await;
+
+        db.transaction::<_, (), DbErr>(|txn| {
+            Box::pin(async move {
+                machines::Entity::insert_many(machines_models)
+                    .exec(txn)
+                    .await?;
+
+                Ok(())
+            })
+        })
+        .await?;
+
         Ok(())
     }
 
-    // 向 project 表中插入数据。
-    pub async fn insert_project(
-        id: i32,
-        range_id: i32,
-        name: &str,
-        decimal: f64,
-        digital: &str,
-        hours: i32,
-        minutes: i32,
-        seconds: i32,
-        percent: f64,
-        text: &str,
-        total_seconds: f64,
+    pub async fn insert_operating_systems(
+        operating_systems_models: Vec<operating_systems::ActiveModel>,
     ) -> anyhow::Result<()> {
-        let mut tx = DB_POOL.begin().await?;
-        sqlx
-        ::query(
-            "INSERT INTO project (id, range_id, name, decimal, digital, hours, minutes, seconds, percent, text, total_seconds) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
-        )
-            .bind(id)
-            .bind(range_id)
-            .bind(name)
-            .bind(decimal)
-            .bind(digital)
-            .bind(hours)
-            .bind(minutes)
-            .bind(seconds)
-            .bind(percent)
-            .bind(text)
-            .bind(total_seconds)
-            .execute(&mut tx).await?;
-        tx.commit().await?;
+        let db = DB.get_or_init(|| db_conn()).await;
+
+        db.transaction::<_, (), DbErr>(|txn| {
+            Box::pin(async move {
+                operating_systems::Entity::insert_many(operating_systems_models)
+                    .exec(txn)
+                    .await?;
+
+                Ok(())
+            })
+        })
+        .await?;
+
+        Ok(())
+    }
+
+    pub async fn insert_projects(
+        projects_models: Vec<projects::ActiveModel>,
+    ) -> anyhow::Result<()> {
+        let db = DB.get_or_init(|| db_conn()).await;
+
+        db.transaction::<_, (), DbErr>(|txn| {
+            Box::pin(async move {
+                projects::Entity::insert_many(projects_models)
+                    .exec(txn)
+                    .await?;
+
+                Ok(())
+            })
+        })
+        .await?;
+
+        Ok(())
+    }
+
+    pub async fn insert_range(range_model: range::ActiveModel) -> anyhow::Result<()> {
+        let db = DB.get_or_init(|| db_conn()).await;
+
+        db.transaction::<_, (), DbErr>(|txn| {
+            Box::pin(async move {
+                range_model.insert(txn).await?;
+
+                Ok(())
+            })
+        })
+        .await?;
+
         Ok(())
     }
 }

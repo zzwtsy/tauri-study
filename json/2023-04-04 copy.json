@@ -1,0 +1,95 @@
+{
+  "categories": {
+    "decimal": "0.70",
+    "digital": "0:42:35",
+    "hours": 0,
+    "minutes": 42,
+    "name": "Coding",
+    "percent": 100,
+    "seconds": 35,
+    "text": "42 mins",
+    "total_seconds": 2555.661
+  },
+  "dependencies": {
+    "decimal": "0.38",
+    "digital": "0:23:32",
+    "hours": 0,
+    "minutes": 23,
+    "name": "cn.zzwtsy",
+    "percent": 50.41,
+    "seconds": 32,
+    "text": "23 mins",
+    "total_seconds": 1412.931
+  },
+  "editors": {
+    "decimal": "0.70",
+    "digital": "0:42:35",
+    "hours": 0,
+    "minutes": 42,
+    "name": "IntelliJ",
+    "percent": 100,
+    "seconds": 35,
+    "text": "42 mins",
+    "total_seconds": 2555.661
+  },
+  "grand_total": {
+    "decimal": "0.70",
+    "digital": "0:42",
+    "hours": 0,
+    "minutes": 42,
+    "text": "42 mins",
+    "total_seconds": 2555.661
+  },
+  "languages": {
+    "decimal": "0.38",
+    "digital": "0:23:47",
+    "hours": 0,
+    "minutes": 23,
+    "name": "Kotlin",
+    "percent": 55.87,
+    "seconds": 47,
+    "text": "23 mins",
+    "total_seconds": 1427.891
+  },
+  "machines": {
+    "decimal": "0.70",
+    "digital": "0:42:35",
+    "hours": 0,
+    "machine_name_id": "606120b0-73b5-4a52-99e5-2e07edf1b6ad",
+    "minutes": 42,
+    "name": "mengdeMac-Pro.local",
+    "percent": 100,
+    "seconds": 35,
+    "text": "42 mins",
+    "total_seconds": 2555.661
+  },
+  "operating_systems": {
+    "decimal": "0.70",
+    "digital": "0:42:35",
+    "hours": 0,
+    "minutes": 42,
+    "name": "Mac",
+    "percent": 100,
+    "seconds": 35,
+    "text": "42 mins",
+    "total_seconds": 2555.661
+  },
+  "projects": {
+    "decimal": "0.70",
+    "digital": "0:42:16",
+    "hours": 0,
+    "minutes": 42,
+    "name": "pu-campus",
+    "percent": 99.26,
+    "seconds": 16,
+    "text": "42 mins",
+    "total_seconds": 2536.627
+  },
+  "range": {
+    "date": "2023-04-04",
+    "end": "2023-04-04T15:59:59Z",
+    "start": "2023-04-03T16:00:00Z",
+    "text": "Tue Apr 4th 2023",
+    "timezone": "Asia/Shanghai"
+  }
+}

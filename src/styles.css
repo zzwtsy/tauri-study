@@ -14,6 +14,10 @@
   -webkit-text-size-adjust: 100%;
 }
 
+html {
+  border-top: 1px solid #ddd;
+}
+
 .container {
   margin: 0;
   padding-top: 10vh;
@@ -92,6 +96,10 @@ button {
   :root {
     color: #f6f6f6;
     background-color: #2f2f2f;
+  }
+
+  html{
+    border-top: 1px solid #0f0f0f;
   }
 
   a:hover {

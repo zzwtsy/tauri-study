@@ -1,3 +1,3 @@
-pub(crate) mod wakatime_dao;
+mod wakatime_dao;
 
-pub use wakatime_dao::WakaTimeDao;
+pub use wakatime_dao::*;

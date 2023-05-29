@@ -3,14 +3,23 @@
 
 mod commands;
 mod dao;
-mod entity;
+mod db;
 mod init;
+mod res;
+mod service;
 mod tools;
 mod utils;
 
 use commands::{gist_id, greet};
+use init::Init;
 
 fn main() {
+    match Init::create_table() {
+        Ok(_) => {},
+        Err(e) => {
+            println!("{}", e);
+        }
+    }
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![greet, gist_id])
         .run(tauri::generate_context!())

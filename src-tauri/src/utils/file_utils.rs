@@ -1,4 +1,8 @@
-use std::fs::{File, remove_file};
+use std::{
+    env,
+    fs::{remove_file, File},
+    path::PathBuf,
+};
 
 // 文件工具类
 pub struct FileUtils {}
@@ -15,8 +19,11 @@ impl FileUtils {
     }
 
     // 检测文件是否存在
-    pub fn file_exists(filename: &str) -> bool {
-        // File::open(filename) 返回 Ok(_) 表示文件存在
-        matches!(File::open(filename), Ok(_))
+    pub fn file_exists(filepath: &str) -> bool {
+        println!("{}", env::current_dir().unwrap().display());
+        let mut path = PathBuf::new();
+        path.push(env::current_dir().unwrap());
+        path.push(filepath);
+        path.exists()
     }
 }
