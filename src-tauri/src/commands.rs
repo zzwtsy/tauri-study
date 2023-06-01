@@ -1,7 +1,4 @@
-use std::collections::HashMap;
-
-use crate::{service::WakaTimeService, utils::HttpUtils};
-use entity::wakatime::*;
+use crate::{api, service::WakaTimeService};
 
 #[tauri::command]
 pub fn greet(name: &str) -> String {
@@ -12,19 +9,31 @@ pub fn greet(name: &str) -> String {
 pub async fn gist_id(id: i32) -> String {
     println!("{}", id);
 
-    let url = "https://gist.githubusercontent.com/zzwtsy/070bce177f3e0bc2b012be8ecfa166e4/raw/8168f5580c76be3e15b303fcedac78683dc1c3b0/summaries_2023-01-01.json";
+    let raw_urls = api::get_gist_raw_url("070bce177f3e0bc2b012be8ecfa166e4".to_owned())
+        .await
+        .unwrap();
 
-    let header = HashMap::new();
+    let posts = api::get_posts(raw_urls).await;
 
-    let res = HttpUtils::get_json::<WakaTimeJsonVec>(url, header).await;
+    if posts.is_err() {
+        let err = posts.err().unwrap();
+        println!("posts err = {:#?}", err);
+        return err.to_string();
+    }
 
-    let json = res.unwrap();
+    let posts = posts.unwrap();
 
-    let res = WakaTimeService::add_wakatime_data(json).await;
+    let status = WakaTimeService::add_wakatime_data(posts).await;
 
-    if res.is_err() {
-        return res.err().unwrap().to_string();
-    } else {
-        return "success".to_string();
+    if status.is_err() {
+        return status.err().unwrap().to_string();
+    }
+
+    let res = WakaTimeService::select_all_wakatime_data().await;
+
+
+    match res {
+        Ok(_) => "success".to_owned(),
+        Err(err) => err.to_string(),
     }
 }

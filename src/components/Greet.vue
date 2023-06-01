@@ -3,7 +3,7 @@ import { ref } from "vue";
 import { invoke } from "@tauri-apps/api/tauri";
 
 const greetMsg = ref("");
-const gistId = ref<number>();
+const gistId = ref();
 
 async function greet() {
   let id = gistId.value;

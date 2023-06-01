@@ -24,6 +24,7 @@ reqwest = { version = "0.11.18", features = ["json"] }
 tokio = { version = "1.28.1", features = ["full"] }
 once_cell = "1.17.1"
 anyhow = "1.0.71"
+futures = "0.3.28"
 sea-orm = { version = "0.11.3", features = [
     "runtime-tokio-native-tls",
     "sqlx-sqlite",

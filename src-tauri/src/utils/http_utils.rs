@@ -1,7 +1,10 @@
 use once_cell::sync::OnceCell;
-use std::collections::HashMap;
+use std::{collections::HashMap, str::FromStr};
 
-use reqwest::{Client, Url};
+use reqwest::{
+    header::{HeaderMap, HeaderName, HeaderValue},
+    Client, Url,
+};
 use serde::de::DeserializeOwned;
 
 static CLIENT: OnceCell<Client> = OnceCell::new();
@@ -50,21 +53,31 @@ impl HttpUtils {
     /// ```
     pub async fn get_json<T: DeserializeOwned>(
         url: &str,
-        header: HashMap<&str, &str>,
+        header: Option<HashMap<&str, &str>>,
     ) -> anyhow::Result<T> {
         let url = Url::parse(url)?;
 
-        let mut builder = CLIENT.get_or_init(|| init()).get(url);
+        let mut headers = HeaderMap::new();
 
-        if !header.is_empty() {
-            for (key, val) in header {
-                builder = builder.header(key, val);
+        headers.insert("User-Agent", HeaderValue::from_static("Mozilla/5.0"));
+
+        if let Some(h) = header {
+            for (key, val) in h {
+                headers.insert(HeaderName::from_str(key)?, HeaderValue::from_str(val)?);
             }
         }
 
-        let response = builder.send().await?.json::<T>().await?;
+        let response = CLIENT
+            .get_or_init(|| init())
+            .get(url)
+            .headers(headers)
+            .send()
+            .await?
+            .error_for_status()?;
 
-        Ok(response)
+        let json = response.json::<T>().await?;
+
+        Ok(json)
     }
 
     /// 使用 POST 方法向指定 URL 提交 JSON 数据，并获取返回的 JSON 数据

@@ -7,7 +7,8 @@ use serde::{Deserialize, Serialize};
 #[sea_orm(table_name = "range")]
 pub struct Model {
     #[sea_orm(primary_key)]
-    #[serde(skip_deserializing, skip_serializing)]
+    #[serde(skip_deserializing)]
+    #[sea_orm()]
     pub id: i64,
     pub date: String,
     pub end: String,

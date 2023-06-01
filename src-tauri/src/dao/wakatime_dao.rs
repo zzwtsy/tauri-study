@@ -1,28 +1,47 @@
 use sea_orm::{ActiveModelTrait, DbErr, EntityTrait, TransactionTrait};
 
-use crate::{db::db_conn, tools::DB};
-use entity::*;
+use crate::db::db_conn;
+use crate::tools::DB;
+use entity::{
+    categories, dependencies, editors, grand_total, languages, machines, operating_systems,
+    prelude::{
+        Categories, Dependencies, Editors, GrandTotal, Languages, Machines, OperatingSystems,
+        Projects, Range,
+    },
+    projects, range,
+};
 
 /// DAO 结构体，用于操作数据库。
 pub struct WakaTimeDao {}
 
-#[warn(dead_code)]
 impl WakaTimeDao {
-    pub async fn insert_categories(
-        categories_models: Vec<categories::ActiveModel>,
-    ) -> anyhow::Result<()> {
+    async fn insert_entities<E, M>(models: Vec<M>) -> anyhow::Result<()>
+    where
+        E: EntityTrait + Clone + 'static + Send,
+        M: ActiveModelTrait<Entity = E> + Clone + 'static + Send,
+    {
         let db = DB.get_or_init(|| db_conn()).await;
+        let entities = E::insert_many(models);
 
         db.transaction::<_, (), DbErr>(|txn| {
             Box::pin(async move {
-                categories::Entity::insert_many(categories_models)
-                    .exec(txn)
-                    .await?;
-
+                entities.exec(txn).await?;
                 Ok(())
             })
         })
         .await?;
+
+        Ok(())
+    }
+
+    pub async fn insert_categories(
+        categories_models: Vec<categories::ActiveModel>,
+    ) -> anyhow::Result<()> {
+        if categories_models.is_empty() {
+            return Ok(());
+        }
+
+        Self::insert_entities::<Categories, _>(categories_models).await?;
 
         Ok(())
     }
@@ -30,35 +49,21 @@ impl WakaTimeDao {
     pub async fn insert_dependencies(
         dependencies_models: Vec<dependencies::ActiveModel>,
     ) -> anyhow::Result<()> {
-        let db = DB.get_or_init(|| db_conn()).await;
+        if dependencies_models.is_empty() {
+            return Ok(());
+        }
 
-        db.transaction::<_, (), DbErr>(|txn| {
-            Box::pin(async move {
-                dependencies::Entity::insert_many(dependencies_models)
-                    .exec(txn)
-                    .await?;
-
-                Ok(())
-            })
-        })
-        .await?;
+        Self::insert_entities::<Dependencies, _>(dependencies_models).await?;
 
         Ok(())
     }
 
     pub async fn insert_editors(editors_models: Vec<editors::ActiveModel>) -> anyhow::Result<()> {
-        let db = DB.get_or_init(|| db_conn()).await;
+        if editors_models.is_empty() {
+            return Ok(());
+        }
 
-        db.transaction::<_, (), DbErr>(|txn| {
-            Box::pin(async move {
-                editors::Entity::insert_many(editors_models)
-                    .exec(txn)
-                    .await?;
-
-                Ok(())
-            })
-        })
-        .await?;
+        Self::insert_entities::<Editors, _>(editors_models).await?;
 
         Ok(())
     }
@@ -66,16 +71,7 @@ impl WakaTimeDao {
     pub async fn insert_grand_total(
         grand_total_model: grand_total::ActiveModel,
     ) -> anyhow::Result<()> {
-        let db = DB.get_or_init(|| db_conn()).await;
-
-        db.transaction::<_, (), DbErr>(|txn| {
-            Box::pin(async move {
-                grand_total_model.insert(txn).await?;
-
-                Ok(())
-            })
-        })
-        .await?;
+        Self::insert_entities::<GrandTotal, _>(vec![grand_total_model]).await?;
 
         Ok(())
     }
@@ -83,18 +79,11 @@ impl WakaTimeDao {
     pub async fn insert_languages(
         languages_models: Vec<languages::ActiveModel>,
     ) -> anyhow::Result<()> {
-        let db = DB.get_or_init(|| db_conn()).await;
+        if languages_models.is_empty() {
+            return Ok(());
+        }
 
-        db.transaction::<_, (), DbErr>(|txn| {
-            Box::pin(async move {
-                languages::Entity::insert_many(languages_models)
-                    .exec(txn)
-                    .await?;
-
-                Ok(())
-            })
-        })
-        .await?;
+        Self::insert_entities::<Languages, _>(languages_models).await?;
 
         Ok(())
     }
@@ -102,18 +91,11 @@ impl WakaTimeDao {
     pub async fn insert_machines(
         machines_models: Vec<machines::ActiveModel>,
     ) -> anyhow::Result<()> {
-        let db = DB.get_or_init(|| db_conn()).await;
+        if machines_models.is_empty() {
+            return Ok(());
+        }
 
-        db.transaction::<_, (), DbErr>(|txn| {
-            Box::pin(async move {
-                machines::Entity::insert_many(machines_models)
-                    .exec(txn)
-                    .await?;
-
-                Ok(())
-            })
-        })
-        .await?;
+        Self::insert_entities::<Machines, _>(machines_models).await?;
 
         Ok(())
     }
@@ -121,18 +103,11 @@ impl WakaTimeDao {
     pub async fn insert_operating_systems(
         operating_systems_models: Vec<operating_systems::ActiveModel>,
     ) -> anyhow::Result<()> {
-        let db = DB.get_or_init(|| db_conn()).await;
+        if operating_systems_models.is_empty() {
+            return Ok(());
+        }
 
-        db.transaction::<_, (), DbErr>(|txn| {
-            Box::pin(async move {
-                operating_systems::Entity::insert_many(operating_systems_models)
-                    .exec(txn)
-                    .await?;
-
-                Ok(())
-            })
-        })
-        .await?;
+        Self::insert_entities::<OperatingSystems, _>(operating_systems_models).await?;
 
         Ok(())
     }
@@ -140,33 +115,17 @@ impl WakaTimeDao {
     pub async fn insert_projects(
         projects_models: Vec<projects::ActiveModel>,
     ) -> anyhow::Result<()> {
-        let db = DB.get_or_init(|| db_conn()).await;
+        if projects_models.is_empty() {
+            return Ok(());
+        }
 
-        db.transaction::<_, (), DbErr>(|txn| {
-            Box::pin(async move {
-                projects::Entity::insert_many(projects_models)
-                    .exec(txn)
-                    .await?;
-
-                Ok(())
-            })
-        })
-        .await?;
+        Self::insert_entities::<Projects, _>(projects_models).await?;
 
         Ok(())
     }
 
     pub async fn insert_range(range_model: range::ActiveModel) -> anyhow::Result<()> {
-        let db = DB.get_or_init(|| db_conn()).await;
-
-        db.transaction::<_, (), DbErr>(|txn| {
-            Box::pin(async move {
-                range_model.insert(txn).await?;
-
-                Ok(())
-            })
-        })
-        .await?;
+        Self::insert_entities::<Range, _>(vec![range_model]).await?;
 
         Ok(())
     }

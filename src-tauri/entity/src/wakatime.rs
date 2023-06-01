@@ -6,6 +6,7 @@ use crate::{
     projects, range,
 };
 
+#[derive(Debug, Clone, Default)]
 pub struct WakaTimeActiveModel {
     pub categories: Vec<categories::ActiveModel>,
     pub dependencies: Vec<dependencies::ActiveModel>,
@@ -18,10 +19,10 @@ pub struct WakaTimeActiveModel {
     pub range: range::ActiveModel,
 }
 
-pub type WakaTimeJsonVec = Vec<WakaTimeJson>;
+pub type WakaTimeModelVec = Vec<WakaTimeModel>;
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct WakaTimeJson {
+pub struct WakaTimeModel {
     pub categories: Vec<categories::Model>,
     pub dependencies: Vec<dependencies::Model>,
     pub editors: Vec<editors::Model>,
@@ -33,8 +34,8 @@ pub struct WakaTimeJson {
     pub range: range::Model,
 }
 
-impl From<WakaTimeJson> for WakaTimeActiveModel {
-    fn from(json: WakaTimeJson) -> Self {
+impl From<WakaTimeModel> for WakaTimeActiveModel {
+    fn from(json: WakaTimeModel) -> Self {
         let id = get_scru128_id();
 
         WakaTimeActiveModel {

@@ -9,6 +9,7 @@ mod res;
 mod service;
 mod tools;
 mod utils;
+mod api;
 
 use commands::{gist_id, greet};
 use init::Init;

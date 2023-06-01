@@ -12,7 +12,9 @@ pub async fn db_conn() -> DatabaseConnection {
         .connect_timeout(Duration::from_secs(8))
         .idle_timeout(Duration::from_secs(8));
 
-    let db = Database::connect(opt).await.unwrap();
+    let db = Database::connect(opt)
+        .await
+        .expect("Failed to connect to database");
 
     db
 }
