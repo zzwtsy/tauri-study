@@ -6,7 +6,14 @@ import Greet from "./components/Greet.vue";
 
 <template>
   <div class="container">
-    <Greet/>
+    <el-container>
+      <el-aside width="150px">
+        <Menu style="height: 100vh;" />
+      </el-aside>
+      <el-main>
+        <Greet />
+      </el-main>
+    </el-container>
   </div>
 </template>
 

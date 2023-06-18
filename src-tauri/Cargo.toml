@@ -30,6 +30,7 @@ sea-orm = { version = "0.11.3", features = [
     "sqlx-sqlite",
     "macros",
 ] }
+chrono = "0"
 entity = { path = "./entity" }
 
 [features]

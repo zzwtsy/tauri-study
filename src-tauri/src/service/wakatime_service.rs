@@ -1,5 +1,5 @@
-use crate::res::*;
-use crate::{dao::WakaTimeDao, db::db_conn, res, tools::DB};
+use crate::{dao::WakaTimeDao, db::db_conn, res::*, tools::DB};
+use chrono::NaiveDate;
 use entity::{
     categories, dependencies, editors, grand_total, languages, machines, operating_systems,
     prelude::{
@@ -29,6 +29,22 @@ macro_rules! select_without {
 }
 
 impl WakaTimeService {
+    pub async fn query_wakatime_by_date_range(
+        start: NaiveDate,
+        end: NaiveDate,
+    ) -> anyhow::Result<Vec<ChartVo>> {
+        let start = start.format("%Y-%m-%d").to_string();
+        let end = end.format("%Y-%m-%d").to_string();
+
+        if start > end {
+            return Err(anyhow::anyhow!("开始时间不能大于结束时间"));
+        }
+
+        let models = WakaTimeDao::select_languages_by_date_range(start, end).await?;
+
+        Ok(models)
+    }
+
     pub async fn add_wakatime_data(
         wakatime_active_model: Vec<WakaTimeModelVec>,
     ) -> anyhow::Result<()> {

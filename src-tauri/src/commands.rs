@@ -1,8 +1,26 @@
-use crate::{api, service::WakaTimeService};
+use chrono::NaiveDate;
+
+use crate::{api, dao::WakaTimeDao, service::WakaTimeService};
 
 #[tauri::command]
 pub fn greet(name: &str) -> String {
     format!("Hello, {}! You've been greeted from Rust!", name)
+}
+
+#[tauri::command]
+pub async fn query_wakatime_by_date_range() {
+    let start = NaiveDate::parse_from_str("2023-05-24", "%Y-%m-%d")
+        .unwrap()
+        .to_string();
+    let end = NaiveDate::parse_from_str("2023-05-30", "%Y-%m-%d")
+        .unwrap()
+        .to_string();
+    let res = WakaTimeDao::select_editers_by_date_range(start, end).await;
+
+    match res {
+        Ok(res) => println!("{:#?}", res),
+        Err(err) => println!("{:#?}", err),
+    }
 }
 
 #[tauri::command]
@@ -30,7 +48,6 @@ pub async fn gist_id(id: i32) -> String {
     }
 
     let res = WakaTimeService::select_all_wakatime_data().await;
-
 
     match res {
         Ok(_) => "success".to_owned(),

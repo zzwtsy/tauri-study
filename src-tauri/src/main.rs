@@ -1,6 +1,7 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+mod api;
 mod commands;
 mod dao;
 mod db;
@@ -9,20 +10,23 @@ mod res;
 mod service;
 mod tools;
 mod utils;
-mod api;
 
-use commands::{gist_id, greet};
+use commands::{gist_id, greet, query_wakatime_by_date_range};
 use init::Init;
 
 fn main() {
     match Init::create_table() {
-        Ok(_) => {},
+        Ok(_) => {}
         Err(e) => {
             println!("{}", e);
         }
     }
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![greet, gist_id])
+        .invoke_handler(tauri::generate_handler![
+            greet,
+            gist_id,
+            query_wakatime_by_date_range
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

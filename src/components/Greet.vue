@@ -11,6 +11,10 @@ async function greet() {
   // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
   greetMsg.value = await invoke("gist_id", { id: gistId.value as number });
 }
+
+async function query() {
+  await invoke("query_wakatime_by_date_range");
+}
 </script>
 
 <template>
@@ -21,6 +25,7 @@ async function greet() {
       placeholder="Enter a gist id..."
     />
     <button type="button" @click="greet()">Greet</button>
+    <button type="button" @click="query()">Query</button>
   </div>
 
   <p>{{ greetMsg }}</p>

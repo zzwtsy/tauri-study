@@ -1,7 +1,4 @@
-use sea_orm::{ActiveModelTrait, DbErr, EntityTrait, TransactionTrait};
-
-use crate::db::db_conn;
-use crate::tools::DB;
+use crate::{db::db_conn, res::ChartVo, tools::DB};
 use entity::{
     categories, dependencies, editors, grand_total, languages, machines, operating_systems,
     prelude::{
@@ -9,6 +6,10 @@ use entity::{
         Projects, Range,
     },
     projects, range,
+};
+use sea_orm::{
+    ActiveModelTrait, ColumnTrait, DbErr, EntityTrait, QueryFilter, QueryOrder, QuerySelect,
+    TransactionTrait,
 };
 
 /// DAO 结构体，用于操作数据库。
@@ -34,6 +35,49 @@ impl WakaTimeDao {
         Ok(())
     }
 
+    pub async fn select_languages_by_date_range(
+        start: String,
+        end: String,
+    ) -> anyhow::Result<Vec<ChartVo>> {
+        let db = DB.get_or_init(|| db_conn()).await;
+
+        let res = Languages::find()
+            .select_only()
+            .column(languages::Column::Name)
+            .column(languages::Column::TotalSeconds)
+            .column(range::Column::Date)
+            .inner_join(Range)
+            .filter(range::Column::Date.between(start, end))
+            .order_by_desc(range::Column::Date)
+            .into_model::<ChartVo>()
+            .all(db)
+            .await?;
+
+        Ok(res)
+    }
+
+    pub async fn select_editers_by_date_range(
+        start: String,
+        end: String,
+    ) -> anyhow::Result<Vec<ChartVo>> {
+        let db = DB.get_or_init(|| db_conn()).await;
+
+        let res = Editors::find()
+            .select_only()
+            .column_as(editors::Column::TotalSeconds.sum(), "total_seconds")
+            .column(editors::Column::Name)
+            .column(range::Column::Date)
+            .inner_join(Range)
+            .filter(range::Column::Date.between(start, end))
+            .order_by_desc(range::Column::Date)
+            .into_model::<ChartVo>()
+            .all(db)
+            .await?;
+
+        Ok(res)
+    }
+
+    // 插入数据到数据库
     pub async fn insert_categories(
         categories_models: Vec<categories::ActiveModel>,
     ) -> anyhow::Result<()> {
