@@ -1,14 +1,14 @@
 <template>
-  <el-menu default-active="1" class="menu">
-    <el-menu-item index="1" class="menu-item">
+  <el-menu router default-active="/home" class="menu">
+    <el-menu-item index="/home" class="menu-item">
       <el-icon><Icon-ri-bar-chart-box-line /></el-icon>
       <template #title> 首页 </template>
     </el-menu-item>
-    <el-menu-item index="2" class="menu-item">
+    <el-menu-item index="/data" class="menu-item">
       <el-icon><Icon-ri-database-line /></el-icon>
       <template #title> 数据 </template>
     </el-menu-item>
-    <el-menu-item index="3" class="menu-item">
+    <el-menu-item index="/setting" class="menu-item">
       <el-icon><Icon-ri-settings-3-line /></el-icon>
       <template #title> 设置 </template>
     </el-menu-item>

@@ -1,10 +1,23 @@
 use chrono::NaiveDate;
 
-use crate::{api, dao::WakaTimeDao, service::WakaTimeService};
+use crate::{api, dao::WakaTimeDao, res::WakaTimeRes, service::WakaTimeService};
 
 #[tauri::command]
 pub fn greet(name: &str) -> String {
     format!("Hello, {}! You've been greeted from Rust!", name)
+}
+
+#[tauri::command]
+pub async fn get_all_wakatime_data() -> Vec<WakaTimeRes> {
+    let result = WakaTimeService::select_all_wakatime_data().await;
+
+    if result.is_err() {
+        println!("err");
+        return Vec::new();
+    }
+    let tmp = result.unwrap().first().unwrap().clone();
+    println!("{:#?}", tmp);
+    return vec![tmp];
 }
 
 #[tauri::command]

@@ -11,7 +11,7 @@ mod service;
 mod tools;
 mod utils;
 
-use commands::{gist_id, greet, query_wakatime_by_date_range};
+use commands::{get_all_wakatime_data, gist_id, greet, query_wakatime_by_date_range};
 use init::Init;
 
 fn main() {
@@ -25,6 +25,7 @@ fn main() {
         .invoke_handler(tauri::generate_handler![
             greet,
             gist_id,
+            get_all_wakatime_data,
             query_wakatime_by_date_range
         ])
         .run(tauri::generate_context!())

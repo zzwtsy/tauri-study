@@ -12,8 +12,10 @@
   "dependencies": {
     "@csstools/normalize.css": "^12.0.0",
     "@tauri-apps/api": "^1.4.0",
+    "@vueuse/core": "^10.2.0",
     "element-plus": "^2.3.6",
-    "vue": "^3.3.4"
+    "vue": "^3.3.4",
+    "vue-router": "4"
   },
   "devDependencies": {
     "@iconify/json": "^2.2.79",

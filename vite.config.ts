@@ -16,7 +16,7 @@ export default defineConfig(async () => ({
         // 自动导入图标组件
         IconsResolver({
           prefix: "Icon",
-          enabledCollections: ["ri", "mdi"],
+          enabledCollections: ["ri"],
         }),
       ],
     }),
@@ -26,7 +26,7 @@ export default defineConfig(async () => ({
         // 自动注册图标组件
         IconsResolver({
           prefix: "Icon",
-          enabledCollections: ["ri", "mdi"],
+          enabledCollections: ["ri"],
         }),
       ],
     }),
